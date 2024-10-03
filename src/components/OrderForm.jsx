@@ -10,12 +10,29 @@ const OrderForm = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
+  const api_uri = import.meta.env.VITE_REACT_API_URI
+
   const validate = () => {
     const newErrors = {};
+
+    // Validate item
     if (!item) newErrors.item = 'Item is required';
-    if (!phone) newErrors.phone = 'Phone number is required';
-    if (!amount) newErrors.amount = 'Amount is required';
-    else if (isNaN(amount)) newErrors.amount = 'Amount must be a number';
+
+    // Validate phone number
+    const phoneRegex = /^\+2547\d{8}$/; // Ensures the number starts with +2547 and is followed by exactly 8 digits
+    if (!phone) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!phoneRegex.test(phone)) {
+      newErrors.phone = 'Invalid phone number format. It should start with +2547 and contain 8 digits.';
+    }
+
+    // Validate amount
+    if (!amount) {
+      newErrors.amount = 'Amount is required';
+    } else if (isNaN(amount)) {
+      newErrors.amount = 'Amount must be a number';
+    }
+
     return newErrors;
   };
 
@@ -24,16 +41,16 @@ const OrderForm = () => {
     const validationErrors = validate();
     if (Object.keys(validationErrors).length === 0) {
       try {
-        const response = await axios.post('http://localhost:5000/api/order', { item, phone, amount });
+        const response = await axios.post(`${api_uri}/api/order`, { item, phone, amount });
         console.log(response.data.message);
         setSuccessMessage('Order placed successfully!');
         setItem('');
         setPhone('');
         setAmount('');
 
-        // Navigate to another page (e.g., order summary) after a short delay
+        // Navigate to order summary with the phone number
         setTimeout(() => {
-          navigate(`/order-summary/${phone}`); // Replace with the actual route for order summary
+          navigate(`/order-summary/${phone}`); // Navigate with the phone number
         }, 2000); // Redirect after 2 seconds
       } catch (error) {
         console.error('Error placing order:', error);

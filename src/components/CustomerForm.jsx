@@ -9,20 +9,31 @@ const CustomerForm = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
+  const api_uri = import.meta.env.VITE_REACT_API_URI
+
   const validate = () => {
     const newErrors = {};
-    if (!name) newErrors.name = 'Name is required';
-    if (!phone) newErrors.phone = 'Phone is required';
-    else if (!/^\+?\d{10,13}$/.test(phone)) newErrors.phone = 'Invalid phone number';
+
+    // Validate item
+    if (!name) newErrors.item = 'Item is required';
+
+    // Validate phone number
+    const phoneRegex = /^\+2547\d{8}$/; // Ensures the number starts with +2547 and is followed by exactly 8 digits
+    if (!phone) {
+      newErrors.phone = 'Phone number is required';
+    } else if (!phoneRegex.test(phone)) {
+      newErrors.phone = 'Invalid phone number format. It should start with +2547 and contain 8 digits.';
+    }
     return newErrors;
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length === 0) {
       try {
-        const response = await axios.post('http://localhost:5000/api/customer', { name, phone });
+        const response = await axios.post(`${api_uri}/api/customer`, { name, phone });
         console.log(response.data.message);
         setSuccessMessage('Customer created successfully!');
         setName('');

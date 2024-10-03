@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
+const api_uri = import.meta.env.VITE_REACT_API_URI
+
 const OrderSummary = () => {
   const [orderData, setOrderData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,7 +13,7 @@ const OrderSummary = () => {
   useEffect(() => {
     const fetchOrderStatement = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/order/${phone}`); // Correct interpolation
+        const response = await axios.get(`${api_uri}/api/order/${phone}`);
         setOrderData(response.data);
         setLoading(false);
       } catch (err) {
@@ -27,7 +29,7 @@ const OrderSummary = () => {
 
   // Render loading, error, or order summary
   if (loading) {
-    return <div className="text-center">Loading...</div>;
+    return <div className="text-center mt-12 font-bold">Loading...</div>;
   }
 
   if (error) {
@@ -48,30 +50,32 @@ const OrderSummary = () => {
 
           {/* Order Table */}
           <h2 className="text-lg font-semibold mb-4">Recent Orders:</h2>
-          {orderData.orders.length > 0 ? (
-            <table className="min-w-full bg-white border border-gray-300">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 border">Order ID</th>
-                  <th className="px-4 py-2 border">Item</th>
-                  <th className="px-4 py-2 border">Amount</th>
-                  <th className="px-4 py-2 border">Order Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {orderData.orders.map((order) => (
-                  <tr key={order.order_id}>
-                    <td className="px-4 py-2 border text-center">{order.order_id}</td>
-                    <td className="px-4 py-2 border">{order.item}</td>
-                    <td className="px-4 py-2 border text-center">Ksh.{order.amount}</td>
-                    <td className="px-4 py-2 border text-center">{new Date(order.created_at).toLocaleDateString()}</td>
+          <div className="bg-white shadow-lg text-gray-700 font-semibold rounded-lg p-7 mb-4 border-[1px]">
+            {orderData.orders.length > 0 ? (
+              <table className="min-w-full bg-white p-2">
+                <thead>
+                  <tr>
+                    <th className="py-2 md:text-left text-gray-600  text-[8px] md:text-[14px]">Order ID</th>
+                    <th className="py-2 md:text-left text-gray-600  text-[8px] md:text-[14px]">Item</th>
+                    <th className="py-2 md:text-left text-gray-600  text-[8px] md:text-[14px]">Amount</th>
+                    <th className="py-2 md:text-left text-gray-600  text-[8px] md:text-[14px]">Order Date</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>No recent orders found for this customer.</p>
-          )}
+                </thead>
+                <tbody>
+                  {orderData.orders.map((order) => (
+                    <tr key={order.order_id} className="border-b">
+                      <td className="py-2 text-left text-gray-800 text-[7px] pr-2 md:text-[13px]">{order.order_id}</td>
+                      <td className="py-2 text-left text-gray-800 text-[7px] pr-2 md:text-[13px]">{order.item}</td>
+                      <td className="py-2 text-left text-gray-800 text-[7px] pr-2 md:text-[13px]">Ksh.{order.amount}</td>
+                      <td className="py-2 text-left text-gray-800 text-[7px] pr-2 md:text-[13px]">{new Date(order.created_at).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>No recent orders found for this customer.</p>
+            )}
+          </div>
         </div>
       ) : (
         <p>No customer data available.</p>
